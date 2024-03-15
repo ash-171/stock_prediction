@@ -133,7 +133,7 @@ def main():
             # Prepare data for prediction
             x_pred = create_dataset(scaled_data)
 
-            if selected_model == "Gradient Boost" | selected_model == "Random Forest":
+            if (selected_model == "Gradient Boost") | (selected_model == "Random Forest"):
                 x_pred = x_pred.reshape(-1,1)
 
             # Predict stock prices
