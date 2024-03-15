@@ -23,7 +23,7 @@ def calculate_moving_average(data, window_size):
 def create_dataset(data, look_back=100):
     X = []
     for i in range(len(data) - look_back):
-        X.append(data[i:(i + look_back)])
+        X.append(data[i:(i + look_back),0])
     return np.array(X)
 
 # Function to download model file
@@ -55,7 +55,7 @@ def main():
     end_date = st.sidebar.date_input('Select End Date:', datetime.now())
 
     # Model selection
-    selected_model = st.sidebar.radio("Select Model", ("Neural Network","LSTM", "Random Forest","Gradient Boost","Garch Model"))
+    selected_model = st.sidebar.radio("Select Model", ("Neural Network","LSTM", "Random Forest","Gradient Boost"))
 
     # Load stock data
     if stock_symbol:
@@ -124,7 +124,6 @@ def main():
                 model_filename = "gradientboost_regressor_model.pkl"
                 download_model(model_url, model_filename)
                 model = load_pickle_model(model_filename)
-
             
 
             # Scale data
@@ -133,6 +132,9 @@ def main():
 
             # Prepare data for prediction
             x_pred = create_dataset(scaled_data)
+
+            if selected_model == "Gradient Boost" | selected_model == "Random Forest":
+                x_pred = x_pred.reshape(-1,1)
 
             # Predict stock prices
             y_pred = model.predict(x_pred)
