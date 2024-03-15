@@ -115,12 +115,12 @@ def main():
                 download_model(model_url, model_filename)
                 model = load_pickle_model(model_filename)
             elif selected_model == "LSTM":
-                model_url = "https://github.com/ash-171/stock_prediction/raw/main/artifacts/LSTM_model.h5"
+                model_url = "https://github.com/ash-171/stock_prediction/raw/main/LSTM_model.h5"
                 model_filename = "LSTM_model.h5"
                 download_model(model_url, model_filename)
                 model = load_h5_model(model_filename)
             elif selected_model == "Gradient Boost":
-                model_url = "https://github.com/ash-171/stock_prediction/raw/main/artifacts/gradientboost_regressor_model.pkl"
+                model_url = "https://github.com/ash-171/stock_prediction/raw/main/gradientboost_regressor_model.pkl"
                 model_filename = "gradientboost_regressor_model.pkl"
                 download_model(model_url, model_filename)
                 model = load_pickle_model(model_filename)
@@ -128,18 +128,15 @@ def main():
 
             # Scale data
             scaler = MinMaxScaler(feature_range=(0, 1))
-            scaled_data = scaler.fit_transform(np.array(stock_data['Close']).reshape(-1, 1))
+            scaled_data = scaler.fit_transform(np.array(stock_data[['Close']]))
 
             # Prepare data for prediction
             x_pred = create_dataset(scaled_data)
+            # st.write(x_pred)
 
             # Reshape x_pred to match the expected input shape for the model
             if selected_model in ["Gradient Boost", "Random Forest"]:
-                x_pred = x_pred[-1].reshape(1, -1)  # Assuming you want to use the last 100 data points for prediction
-            else:
-                # Reshape the single data point into a 2D array with one row and one column
-                x_pred = x_pred[-1].reshape(1, 1)
-
+                x_pred = x_pred[100:]
 
             # Predict stock prices
             y_pred = model.predict(x_pred)
