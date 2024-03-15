@@ -133,8 +133,13 @@ def main():
             # Prepare data for prediction
             x_pred = create_dataset(scaled_data)
 
-            if (selected_model == "Gradient Boost") | (selected_model == "Random Forest"):
-                x_pred = x_pred.reshape(-1,1)
+            # Reshape x_pred to match the expected input shape for the model
+            if selected_model in ["Gradient Boost", "Random Forest"]:
+                x_pred = x_pred[-1].reshape(1, -1)  # Assuming you want to use the last 100 data points for prediction
+            else:
+                # Reshape the single data point into a 2D array with one row and one column
+                x_pred = x_pred[-1].reshape(1, 1)
+
 
             # Predict stock prices
             y_pred = model.predict(x_pred)
