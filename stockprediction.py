@@ -1,13 +1,15 @@
 import streamlit as st
 import yfinance as yf
 import numpy as np
+import pandas as pd
 import pickle
+import h5py
 from datetime import datetime, timedelta
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from tensorflow.keras.models import Sequential
+from tensorflow.keras.models import Sequential,load_model
 from tensorflow.keras.layers import LSTM, Dense
 
 import plotly.graph_objs as go
@@ -29,6 +31,16 @@ def download_model(model_url, model_filename):
     response = requests.get(model_url)
     with open(model_filename, 'wb') as f:
         f.write(response.content)
+
+def load_pickle_model(model_filename):
+    # Load model from pickle file
+    with open(model_filename, 'rb') as f:
+        model = pickle.load(f)
+    return model
+
+def load_h5_model(model_filename):
+    # Load model from HDF5 file
+    return load_model(model_filename)
 
 # Streamlit app
 def main():
@@ -58,14 +70,14 @@ def main():
             stock_data['LTTS.NS200'] = calculate_moving_average(stock_data['Close'], 200)
 
             # Plot stock data with moving average
-            st.subheader('Price vs MA100')
+            st.subheader('Price vs LTTS.NS100')
             fig1 = go.Figure()
             fig1.add_trace(go.Scatter(x=stock_data.index, y=stock_data['Close'], mode='lines', name='Close Price'))
             fig1.add_trace(go.Scatter(x=stock_data.index, y=stock_data['LTTS.NS100'], mode='lines', name='LTTS.NS100'))
             st.plotly_chart(fig1)
 
             # Plot stock data with moving averages
-            st.subheader('Price vs MA100 vs MA200')
+            st.subheader('Price vs LTTS.NS100 vs LTTS.NS200')
             fig2 = go.Figure()
             fig2.add_trace(go.Scatter(x=stock_data.index, y=stock_data['Close'], mode='lines', name='Close Price'))
             fig2.add_trace(go.Scatter(x=stock_data.index, y=stock_data['LTTS.NS100'], mode='lines', name='LTTS.NS100'))
@@ -93,23 +105,27 @@ def main():
 
             # Load trained model based on selection
             if selected_model == "Neural Network":
-                model_url = "D:/Datamites_Training/stockmarket_project/artifacts/NN_model.h5"
+                model_url = "https://github.com/ash-171/stock_prediction/raw/main/artifacts/NN_model.h5"
                 model_filename = "NN_model.h5"
+                download_model(model_url, model_filename)
+                model = load_h5_model(model_filename)
             elif selected_model == "Random Forest":
-                model_url = "D:/Datamites_Training/stockmarket_project/artifacts/random_forest_regressor_model.pkl"
+                model_url = "https://github.com/ash-171/stock_prediction/raw/main/artifacts/random_forest_regressor_model.pkl"
                 model_filename = "random_forest_regressor_model.pkl"
+                download_model(model_url, model_filename)
+                model = load_pickle_model(model_filename)
             elif selected_model == "LSTM":
-                model_url = "D:/Datamites_Training/stockmarket_project/artifacts/LSTM_model.h5"
+                model_url = "https://github.com/ash-171/stock_prediction/raw/main/artifacts/LSTM_model.h5"
                 model_filename = "LSTM_model.h5"
+                download_model(model_url, model_filename)
+                model = load_h5_model(model_filename)
             elif selected_model == "Gradient Boost":
-                model_url = "D:/Datamites_Training/stockmarket_project/artifacts/gradientboost_regressor_model.pkl"
+                model_url = "https://github.com/ash-171/stock_prediction/raw/main/artifacts/gradientboost_regressor_model.pkl"
                 model_filename = "gradientboost_regressor_model.pkl"
+                download_model(model_url, model_filename)
+                model = load_pickle_model(model_filename)
 
-            # Download model file
-            download_model(model_url, model_filename)
-
-            # Load model
-            model = load_model(model_filename)
+            
 
             # Scale data
             scaler = MinMaxScaler(feature_range=(0, 1))
