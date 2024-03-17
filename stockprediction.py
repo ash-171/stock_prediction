@@ -45,7 +45,6 @@ def load_h5_model(model_filename):
 # Streamlit app
 def main():
     st.sidebar.title('Stock Price Forecasting App')
-    st.sidebar.markdown('Copyright by Aswathi T S')
 
     # User input for stock ticker symbol
     stock_symbol = st.sidebar.text_input('Enter Stock Ticker Symbol (e.g., MSFT):')
@@ -55,7 +54,7 @@ def main():
     end_date = st.sidebar.date_input('Select End Date:', datetime.now())
 
     # Model selection
-    selected_model = st.sidebar.radio("Select Model", ("Neural Network","LSTM", "Random Forest","Gradient Boost"))
+    selected_model = st.sidebar.radio("Select Model", ("Neural Network","LSTM"))
 
     # Load stock data
     if stock_symbol:
@@ -109,21 +108,12 @@ def main():
                 model_filename = "NN_model.h5"
                 download_model(model_url, model_filename)
                 model = load_h5_model(model_filename)
-            elif selected_model == "Random Forest":
-                model_url = "https://github.com/ash-171/stock_prediction/raw/main/artifacts/random_forest_regressor_model.pkl"
-                model_filename = "random_forest_regressor_model.pkl"
-                download_model(model_url, model_filename)
-                model = load_pickle_model(model_filename)
+            
             elif selected_model == "LSTM":
                 model_url = "https://github.com/ash-171/stock_prediction/raw/main/LSTM_model.h5"
                 model_filename = "LSTM_model.h5"
                 download_model(model_url, model_filename)
                 model = load_h5_model(model_filename)
-            elif selected_model == "Gradient Boost":
-                model_url = "https://github.com/ash-171/stock_prediction/raw/main/gradientboost_regressor_model.pkl"
-                model_filename = "gradientboost_regressor_model.pkl"
-                download_model(model_url, model_filename)
-                model = load_pickle_model(model_filename)
             
 
             # Scale data
@@ -132,11 +122,7 @@ def main():
 
             # Prepare data for prediction
             x_pred = create_dataset(scaled_data)
-            # st.write(x_pred)
-
-            # Reshape x_pred to match the expected input shape for the model
-            if selected_model in ["Gradient Boost", "Random Forest"]:
-                x_pred = x_pred[100:]
+            st.write('Shape: ',x_pred.shape)
 
             # Predict stock prices
             y_pred = model.predict(x_pred)
